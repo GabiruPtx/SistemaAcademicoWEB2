@@ -1,0 +1,177 @@
+/* Resetando margens e preenchimentos para todos os elementos */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Definições de cores da paleta */
+:root {
+    --color1: #e6e1cd;
+    --color2: #c6d8c0;
+    --color3: #d6b3b1;
+    --color4: #f97992;
+    --color5: #231b42;
+}
+
+/* Estilos gerais do body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--color1); /* #e6e1cd */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Container principal que vai envolver os elementos */
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1200px;
+    height: auto;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 30px;
+}
+
+/* Cabeçalho com título */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    color: var(--color5); /* #231b42 */
+}
+
+/* Estilos para os grupos de inputs */
+.input-group {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+    color: var(--color5); /* #231b42 */
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid var(--color3); /* #d6b3b1 */
+    border-radius: 5px;
+    background-color: var(--color2); /* #c6d8c0 */
+    color: var(--color5); /* #231b42 */
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--color4); /* #f97992 */
+    box-shadow: 0 0 5px var(--color4); /* #f97992 */
+}
+
+/* Estilos para os botões */
+button {
+    background-color: var(--color4); /* #f97992 */
+    color: black;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    margin-top: 15px;
+    width: 100%;
+}
+
+button:hover {
+    background-color: var(--color1); /* #e6e1cd */
+    transform: scale(1.05);
+}
+
+/* Layout responsivo com flexbox */
+.row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.column {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* Estilos para painel de navegação (quando houver) */
+.nav {
+    background-color: var(--color5); /* #231b42 */
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-around;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.nav a {
+    color: white;
+    font-size: 1.2em;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.nav a:hover {
+    background-color: var(--color3); /* #d6b3b1 */
+}
+
+/* Rodapé */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: var(--color5); /* #231b42 */
+    color: white;
+    border-radius: 5px;
+    margin-top: 30px;
+}
+
+/* Estilos do logout */
+.logout {
+    background-color: white;
+    color: black;
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.logout:hover {
+    background-color: #f1f1f1;
+}
+
+/* Estilos para os ícones (se houver) */
+.icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+    color: var(--color5); /* #231b42 */
+}
+
+.icon:hover {
+    color: var(--color4); /* #f97992 */
+}
+
+
