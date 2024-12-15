@@ -18,8 +18,8 @@
         <h1>HOME</h1>
         <div class="button-container">
             <button class="button"><a href="cadastrarAluno.jsp">CADASTRAR ALUNO</a></button>
-            <button class="button"><a href="cadastrarDisciplina.jsp">CADASTRAR DISCIPLINA</a></button>
-            <button class="button"><a href="adicionarPeriodo.jsp">PERÍODO</a></button>
+            <button class="button"><a href="Disciplinas.do">CADASTRAR DISCIPLINA</a></button>
+            <button class="button"><a href="Periodos.do">PERÍODO</a></button>
             <button class="button"><a href="matricularAluno.jsp">MATRICULAR ALUNO</a></button>
             <button class="button"><a href="adicionarNota.jsp">ADICIONAR NOTA</a></button>
             <button class="button"><a href="painelPeriodo.jsp">EXIBIR SITUAÇÃO FINAL</a></button>

@@ -7,22 +7,61 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.Session;
 import ufrrj.web2.sis_academico.dao.PeriodoDAO;
-import ufrrj.web2.sis_academico.model.Periodo;
-import ufrrj.web2.sis_academico.model.DisciplinaOfertada;
-import ufrrj.web2.sis_academico.model.Disciplina;
+import ufrrj.web2.sis_academico.dao.MatriculaDisciplinaDAO;
+import ufrrj.web2.sis_academico.model.*;
 import ufrrj.web2.sis_academico.util.HibernateUtil;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
-@WebServlet("/Periodos.do")
+@WebServlet(urlPatterns = {"/Periodos.do", "/painelPeriodos"})
 public class PeriodoServlet extends HttpServlet {
 
     private final PeriodoDAO periodoDAO = new PeriodoDAO();
+    private final MatriculaDisciplinaDAO matriculaDAO = new MatriculaDisciplinaDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String path = request.getServletPath();
+
+        if ("/painelPeriodos".equals(path)) {
+            mostrarPainelPeriodos(request, response);
+        } else {
+            mostrarFormularioPeriodo(request, response);
+        }
+    }
+
+    private void mostrarPainelPeriodos(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            // Carregar períodos com disciplinas usando o novo método
+            List<Periodo> periodos = periodoDAO.listarTodosComDisciplinas();
+
+            // Para cada período, carregar as matrículas das disciplinas
+            Map<Long, List<MatriculaDisciplina>> matriculasPorDisciplina = null;
+            if (!periodos.isEmpty()) {
+                matriculasPorDisciplina = matriculaDAO.buscarMatriculasPorPeriodo(periodos.get(0));
+            }
+
+            // Configurar atributos para o JSP
+            request.setAttribute("periodos", periodos);
+            request.setAttribute("matriculasPorDisciplina", matriculasPorDisciplina);
+            request.setAttribute("matriculaDAO", matriculaDAO); // Para usar os métodos de cálculo
+
+            // Encaminhar para o JSP do painel
+            request.getRequestDispatcher("/painelPeriodo.jsp").forward(request, response);
+
+        } catch (Exception e) {
+            request.setAttribute("error", "Erro ao carregar painel de períodos: " + e.getMessage());
+            request.getRequestDispatcher("painelPeriodo.jsp").forward(request, response);
+        }
+    }
+
+    private void mostrarFormularioPeriodo(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             // Carregar todas as disciplinas disponíveis
@@ -33,17 +72,53 @@ public class PeriodoServlet extends HttpServlet {
             List<Periodo> periodos = periodoDAO.getAll();
             request.setAttribute("periodos", periodos);
 
-            request.getRequestDispatcher("/webapp/adicionarPeriodo.jsp").forward(request, response);
+            request.getRequestDispatcher("adicionarPeriodo.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("error", "Erro ao carregar dados: " + e.getMessage());
-            request.getRequestDispatcher("/webapp/adicionarPeriodo.jsp").forward(request, response);
+            request.getRequestDispatcher("adicionarPeriodo.jsp").forward(request, response);
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String action = request.getParameter("action");
 
+        if ("updateNotas".equals(action)) {
+            atualizarNotas(request, response);
+        } else {
+            criarNovoPeriodo(request, response);
+        }
+    }
+
+    private void atualizarNotas(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            Long alunoId = Long.parseLong(request.getParameter("alunoId"));
+            Long disciplinaOfertadaId = Long.parseLong(request.getParameter("disciplinaOfertadaId"));
+            Double nota1 = Double.parseDouble(request.getParameter("nota1"));
+            Double nota2 = Double.parseDouble(request.getParameter("nota2"));
+
+            try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+                DisciplinaOfertada disciplinaOfertada = session.get(DisciplinaOfertada.class, disciplinaOfertadaId);
+                Aluno aluno = session.get(Aluno.class, alunoId);
+
+                if (disciplinaOfertada != null && aluno != null) {
+                    matriculaDAO.updateNotas(aluno, disciplinaOfertada, nota1, nota2);
+                    response.sendRedirect("painelPeriodos");
+                } else {
+                    throw new ServletException("Aluno ou disciplina não encontrados");
+                }
+            }
+        } catch (Exception e) {
+            request.setAttribute("error", "Erro ao atualizar notas: " + e.getMessage());
+            mostrarPainelPeriodos(request, response);
+        }
+    }
+
+    private void criarNovoPeriodo(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Código existente do método doPost para criar período
         String nome = request.getParameter("nome");
         String dataInicioStr = request.getParameter("dataInicio");
         String dataFimStr = request.getParameter("dataFim");
@@ -53,7 +128,7 @@ public class PeriodoServlet extends HttpServlet {
         if (nome == null || dataInicioStr == null || dataFimStr == null ||
                 nome.isBlank() || dataInicioStr.isBlank() || dataFimStr.isBlank()) {
             request.setAttribute("error", "Todos os campos são obrigatórios.");
-            doGet(request, response);
+            mostrarFormularioPeriodo(request, response);
             return;
         }
 
@@ -61,16 +136,14 @@ public class PeriodoServlet extends HttpServlet {
             LocalDate dataInicio = LocalDate.parse(dataInicioStr);
             LocalDate dataFim = LocalDate.parse(dataFimStr);
 
-            // Validação das datas
             if (dataFim.isBefore(dataInicio)) {
                 request.setAttribute("error", "A data de fim não pode ser anterior à data de início.");
-                doGet(request, response);
+                mostrarFormularioPeriodo(request, response);
                 return;
             }
 
             Periodo periodo = new Periodo(nome, dataInicio, dataFim);
 
-            // Adicionar disciplinas ofertadas se houver seleção
             if (disciplinasIds != null && disciplinasIds.length > 0) {
                 try (Session session = HibernateUtil.getSessionFactory().openSession()) {
                     for (String disciplinaId : disciplinasIds) {
@@ -86,11 +159,11 @@ public class PeriodoServlet extends HttpServlet {
             }
 
             periodoDAO.save(periodo);
-            response.sendRedirect("Periodos.do");
+            response.sendRedirect("painelPeriodos");
 
         } catch (Exception e) {
             request.setAttribute("error", "Erro ao salvar período: " + e.getMessage());
-            doGet(request, response);
+            mostrarFormularioPeriodo(request, response);
         }
     }
 }

@@ -30,10 +30,10 @@ public class DisciplinaServlet extends HttpServlet {
         try {
             List<Disciplina> disciplinas = disciplinaDAO.getAll();
             request.setAttribute("disciplinas", disciplinas);
-            request.getRequestDispatcher("/webapp/cadastrarDisciplina.jsp").forward(request, response);
+            request.getRequestDispatcher("cadastrarDisciplina.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("error", "Erro ao listar disciplinas: " + e.getMessage());
-            request.getRequestDispatcher("/webapp/cadastrarDisciplina.jsp").forward(request, response);
+            request.getRequestDispatcher("cadastrarDisciplina.jsp").forward(request, response);
         }
     }
 
@@ -43,9 +43,12 @@ public class DisciplinaServlet extends HttpServlet {
         String nome = request.getParameter("nome");
         String codigo = request.getParameter("codigo");
 
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
         if (nome == null || codigo == null || nome.isBlank() || codigo.isBlank()) {
-            request.setAttribute("error", "Nome e código são obrigatórios.");
-            doGet(request, response);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"message\": \"Nome e código são obrigatórios.\"}");
             return;
         }
 
@@ -53,17 +56,21 @@ public class DisciplinaServlet extends HttpServlet {
             // Verifica se já existe disciplina com o mesmo código
             Disciplina existente = disciplinaDAO.findByCodigo(codigo);
             if (existente != null) {
-                request.setAttribute("error", "Já existe uma disciplina com este código.");
-                doGet(request, response);
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                response.getWriter().write("{\"message\": \"Já existe uma disciplina com este código.\"}");
                 return;
             }
 
             Disciplina disciplina = new Disciplina(nome, codigo);
             disciplinaDAO.save(disciplina);
-            response.sendRedirect("Disciplinas.do");
+
+            // Retorna sucesso e a lista atualizada de disciplinas
+            List<Disciplina> disciplinas = disciplinaDAO.getAll();
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write("{\"message\": \"Disciplina cadastrada com sucesso!\"}");
         } catch (Exception e) {
-            request.setAttribute("error", "Erro ao cadastrar disciplina: " + e.getMessage());
-            doGet(request, response);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"message\": \"Erro ao cadastrar disciplina: " + e.getMessage() + "\"}");
         }
     }
 }

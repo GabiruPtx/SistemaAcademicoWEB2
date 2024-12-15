@@ -27,16 +27,16 @@ public class AlunoServlet extends HttpServlet {
                 List<Aluno> alunos = session.createQuery("from Aluno", Aluno.class).list();
                 List<DisciplinaOfertada> disciplinas = session.createQuery("from DisciplinaOfertada", DisciplinaOfertada.class).list();
 
-                request.setAttribute("alunos.do", alunos);
+                request.setAttribute("alunos", alunos);
                 request.setAttribute("disciplinas", disciplinas);
 
-                request.getRequestDispatcher("/webapp/matricularAluno.jsp").forward(request, response);
+                request.getRequestDispatcher("matricularAluno.jsp").forward(request, response);
             } else {
                 // Listar alunos para cadastro simples
                 List<Aluno> alunos = session.createQuery("from Aluno", Aluno.class).list();
                 request.setAttribute("alunos.do", alunos);
 
-                request.getRequestDispatcher("/webapp/cadastrarAluno.jsp").forward(request, response);
+                request.getRequestDispatcher("cadastrarAluno.jsp").forward(request, response);
             }
         }
     }
@@ -46,9 +46,12 @@ public class AlunoServlet extends HttpServlet {
         String nome = request.getParameter("nome");
         String matricula = request.getParameter("matricula");
 
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
         if (nome == null || matricula == null || nome.isBlank() || matricula.isBlank()) {
-            request.setAttribute("error", "Nome e matrícula são obrigatórios.");
-            request.getRequestDispatcher("/WEB-INF/cadastrarAluno.jsp").forward(request, response);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"message\": \"Nome e matrícula são obrigatórios.\"}");
             return;
         }
 
@@ -59,10 +62,11 @@ public class AlunoServlet extends HttpServlet {
         try {
             AlunoDAO alunoDAO = new AlunoDAO();
             alunoDAO.save(aluno);
-            response.sendRedirect("Alunos.do");
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write("{\"message\": \"Aluno cadastrado com sucesso!\"}");
         } catch (Exception e) {
-            request.setAttribute("error", "Erro ao cadastrar aluno: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/cadastrarAluno.jsp").forward(request, response);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"message\": \"Erro ao cadastrar aluno: " + e.getMessage() + "\"}");
         }
     }
 }

@@ -2,6 +2,7 @@ package ufrrj.web2.sis_academico.dao;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import ufrrj.web2.sis_academico.model.Periodo;
 import ufrrj.web2.sis_academico.model.DisciplinaOfertada;
 import ufrrj.web2.sis_academico.util.HibernateUtil;
@@ -31,6 +32,30 @@ public class PeriodoDAO {
     public Periodo getById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(Periodo.class, id);
+        }
+    }
+
+    public List<Periodo> listarTodosComDisciplinas() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // Usando join fetch para evitar o problema N+1 de consultas
+            String hql = "SELECT DISTINCT p FROM Periodo p " +
+                    "LEFT JOIN FETCH p.disciplinas d " +
+                    "LEFT JOIN FETCH d.disciplina";
+
+            return session.createQuery(hql, Periodo.class).list();
+        }
+    }
+
+    public Periodo getByIdComDisciplinas(Long id) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            String hql = "SELECT DISTINCT p FROM Periodo p " +
+                    "LEFT JOIN FETCH p.disciplinas d " +
+                    "LEFT JOIN FETCH d.disciplina " +
+                    "WHERE p.id = :id";
+
+            Query<Periodo> query = session.createQuery(hql, Periodo.class);
+            query.setParameter("id", id);
+            return query.uniqueResult();
         }
     }
 

@@ -28,7 +28,7 @@ public class LoginServlet extends HttpServlet {
             request.getSession().setAttribute("mensagemErro", "Credenciais inválidas. Tente novamente.");
 
             // Redireciona de volta para a página de login
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("index.jsp");
         }
     }
 }

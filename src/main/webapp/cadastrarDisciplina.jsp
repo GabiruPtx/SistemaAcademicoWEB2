@@ -9,13 +9,7 @@
 <div class="container">
     <h2>Cadastrar Nova Disciplina</h2>
 
-    <c:if test="${not empty error}">
-        <div class="error-message">
-                ${error}
-        </div>
-    </c:if>
-
-    <form action="Disciplinas.do" method="post">
+    <form id="disciplinaForm" action="Disciplinas.do" method="post">
         <div class="form-group">
             <label for="nome">Nome:</label>
             <input type="text" id="nome" name="nome" required>
@@ -28,7 +22,7 @@
 
         <button type="submit">Cadastrar</button>
     </form>
-        <button type="button"><a href="paginaPrincipal.jsp">Voltar</a></button>
+    <button type="button"><a href="paginaPrincipal.jsp">Voltar</a></button>
 
     <h3>Disciplinas Cadastradas</h3>
     <table>

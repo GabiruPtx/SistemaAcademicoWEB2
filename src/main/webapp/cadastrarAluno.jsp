@@ -11,8 +11,8 @@
     <h1>Cadastrar Aluno</h1>
     <form action="Alunos.do" method="POST">
         <div class="input-group">
-            <label for="name">Nome:</label>
-            <input type="text" id="name" name="name" required>
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
         </div>
         <div class="input-group">
             <label for="matricula">Matrícula:</label>
@@ -22,6 +22,29 @@
     </form>
         <button type="button" class="button"><a href="paginaPrincipal.jsp">Voltar</a></button>
 </div>
+<script>
+    document.getElementById('alunoForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch('Alunos.do', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (response.ok) {
+                // Limpa o formulário se o cadastro foi bem sucedido
+                document.getElementById('alunoForm').reset();
+            }
+        })
+        .catch(error => {
+            alert('Erro ao processar a requisição: ' + error);
+        });
+});
+</script>
 </body>
 </html>
 
