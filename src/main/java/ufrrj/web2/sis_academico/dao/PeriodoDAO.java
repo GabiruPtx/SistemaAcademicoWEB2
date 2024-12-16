@@ -7,19 +7,24 @@ import ufrrj.web2.sis_academico.model.Periodo;
 import ufrrj.web2.sis_academico.model.DisciplinaOfertada;
 import ufrrj.web2.sis_academico.util.HibernateUtil;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class PeriodoDAO {
 
-    public void save(Periodo periodo) {
-        Transaction transaction = null;
+    public void save(Session session, Periodo periodo) {
+        session.save(periodo);
+    }
+
+    public Periodo getPeriodoAtual() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            session.save(periodo);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
-            throw e;
+            String hql = "FROM Periodo p WHERE :currentDate BETWEEN p.dataInicio AND p.dataFim";
+            Query<Periodo> query = session.createQuery(hql, Periodo.class);
+
+            // Passando a data atual para a consulta
+            query.setParameter("currentDate", LocalDate.now());
+
+            return query.uniqueResult(); // Retorna o período atual ou null se não encontrar
         }
     }
 

@@ -39,7 +39,7 @@
                 <option value="">Selecione uma Disciplina</option>
                 <c:forEach var="disciplina" items="${disciplinasOfertadas}">
                     <option value="${disciplina.id}">
-                            ${disciplina.disciplina.nome} - ${disciplina.periodo}
+                            ${disciplina.disciplina.nome} - ${disciplina.id}
                     </option>
                 </c:forEach>
             </select>
@@ -56,6 +56,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Cadastrar Notas</button>
+        <a href="paginaPrincipal.jsp"><button type="button">Voltar</button></a>
     </form>
 </div>
 </body>

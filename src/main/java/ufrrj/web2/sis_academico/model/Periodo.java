@@ -25,9 +25,16 @@ public class Periodo {
     @OneToMany(mappedBy = "periodo", cascade = CascadeType.ALL)
     private List<DisciplinaOfertada> disciplinas = new ArrayList<>();
 
-    public Periodo() {}
+    public Periodo() {
 
-    public Periodo(String nome, LocalDate dataInicio, LocalDate dataFim) {}
+    }
+
+    public Periodo(String nome, LocalDate dataInicio, LocalDate dataFim) {
+        this.nome = nome;
+        this.dataInicio = dataInicio;
+        this.dataFim = dataFim;
+
+    }
 
     public Long getId() {
         return id;

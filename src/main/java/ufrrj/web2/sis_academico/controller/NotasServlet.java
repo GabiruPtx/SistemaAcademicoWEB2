@@ -7,13 +7,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.Session;
 import ufrrj.web2.sis_academico.dao.MatriculaDisciplinaDAO;
+import ufrrj.web2.sis_academico.dao.PeriodoDAO;
 import ufrrj.web2.sis_academico.model.Aluno;
 import ufrrj.web2.sis_academico.model.DisciplinaOfertada;
 import ufrrj.web2.sis_academico.model.MatriculaDisciplina;
+import ufrrj.web2.sis_academico.model.Periodo;
 import ufrrj.web2.sis_academico.util.HibernateUtil;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/Notas.do")
@@ -25,18 +29,28 @@ public class NotasServlet extends HttpServlet {
             // Fetch all students
             List<Aluno> alunos = session.createQuery("from Aluno", Aluno.class).list();
 
-            // Fetch currently offered disciplines
-            List<DisciplinaOfertada> disciplinasOfertadas = session.createQuery(
-                    "from DisciplinaOfertada where periodo = current_period()",
-                    DisciplinaOfertada.class
-            ).list();
+            // Buscar o período atual usando o PeriodoDAO
+            PeriodoDAO periodoDAO = new PeriodoDAO();
+            Periodo periodoAtual = periodoDAO.getPeriodoAtual(); // Aqui você chama o método que sugeri
+
+            if (periodoAtual != null) {
+                // Fetch disciplinas ofertadas com o período atual
+                List<DisciplinaOfertada> disciplinasOfertadas = session.createQuery(
+                                "from DisciplinaOfertada where periodo = :periodo", DisciplinaOfertada.class
+                        )
+                        .setParameter("periodo", periodoAtual)
+                        .list();
+
+                request.setAttribute("disciplinasOfertadas", disciplinasOfertadas);
+            } else {
+                request.setAttribute("disciplinasOfertadas", new ArrayList<>()); // Caso não encontre o período
+            }
 
             request.setAttribute("alunos", alunos);
-            request.setAttribute("disciplinasOfertadas", disciplinasOfertadas);
-
-            request.getRequestDispatcher("/WEB-INF/adicionarNota.jsp").forward(request, response);
+            request.getRequestDispatcher("adicionarNota.jsp").forward(request, response);
         }
     }
+
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -77,7 +91,7 @@ public class NotasServlet extends HttpServlet {
             session.update(matricula);
             session.getTransaction().commit();
 
-            response.sendRedirect("Alunos.do");
+            response.sendRedirect("paginaPrincipal.jsp");
         } catch (Exception e) {
             request.setAttribute("error", "Erro ao adicionar notas: " + e.getMessage());
             doGet(request, response);

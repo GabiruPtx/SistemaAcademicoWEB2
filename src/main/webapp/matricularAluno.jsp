@@ -53,6 +53,7 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">Matricular</button>
+                    <a href="paginaPrincipal.jsp"><button type="button">Voltar</button></a>
                 </form>
             </div>
         </div>

@@ -96,7 +96,8 @@
 </c:forEach>
 
 <div style="text-align: center; margin: 20px;">
-    <a href="adicionarPeriodo.jsp">Adicionar Novo Período</a>
+    <a href="adicionarPeriodo.jsp"><button type="button">Novo Período</button></a>
+    <a href="paginaPrincipal.jsp"><button type="button">Voltar</button></a>
 </div>
 </body>
 </html>

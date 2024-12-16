@@ -11,6 +11,7 @@ import ufrrj.web2.sis_academico.model.*;
 import ufrrj.web2.sis_academico.util.HibernateUtil;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class MatriculaServlet extends HttpServlet {
             // Carregar período atual
             String hql = "FROM Periodo p WHERE :dataAtual BETWEEN p.dataInicio AND p.dataFim";
             List<Periodo> periodos = session.createQuery(hql, Periodo.class)
-                    .setParameter("dataAtual", LocalDateTime.now())
+                    .setParameter("dataAtual", LocalDate.now()) // Alterado para LocalDate.now()
                     .list();
 
             if (!periodos.isEmpty()) {
@@ -38,10 +39,10 @@ public class MatriculaServlet extends HttpServlet {
                 request.setAttribute("disciplinasOfertadas", disciplinasOfertadas);
             }
 
-            request.getRequestDispatcher("/webapp/matricularAluno.jsp").forward(request, response);
+            request.getRequestDispatcher("matricularAluno.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("error", "Erro ao carregar dados: " + e.getMessage());
-            request.getRequestDispatcher("/webapp/matricularAluno.jsp").forward(request, response);
+            request.getRequestDispatcher("matricularAluno.jsp").forward(request, response);
         }
     }
 
